@@ -13,6 +13,8 @@ use GuzzleHttp\Psr7\Uri;
 
 abstract class AbstractEndpoint
 {
+    const TOO_MANY_REQUEST_ERROR_CODE = 429;
+
     /**
      * @var ClientInterface
      */
@@ -89,11 +91,22 @@ abstract class AbstractEndpoint
 
     /**
      * @param RequestInterface $request
+     *
      * @return \CodeCloud\Bundle\ShopifyBundle\Api\Response\ResponseInterface
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     protected function process(RequestInterface $request)
     {
-        $guzzleResponse = $this->client->send($request);
+        try {
+            $guzzleResponse = $this->client->send($request);
+        } catch (ClientException $exception) {
+            if ($exception->getCode() === self::TOO_MANY_REQUEST_ERROR_CODE) {
+                sleep(1);
+                return $this->process($request);
+            } else {
+                throw $exception;
+            }
+        }
 
         try {
             switch ($request->getHeaderLine('Content-type')) {
