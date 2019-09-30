@@ -144,15 +144,35 @@ abstract class AbstractEndpoint
             }
         }
 
-        if (empty($params['page'])) {
-            $params['page'] = 1;
-        }
+        $allResults = array();
 
+        $callback = function($pageResults) use (&$allResults){
+            $allResults = array_merge($allResults, $pageResults);
+        };
+
+        $this->processChunk($request, $rootElement, $callback, $params);
+
+        return $allResults;
+    }
+
+    /**
+     * Loop through a set of API results that are available in pages, passing chunks to callback
+     * @param RequestInterface $request
+     * @param string $rootElement
+     * @param callable $callback
+     * @param array $params
+     */
+    protected function processChunk(RequestInterface $request, $rootElement, callable $callback, array $params = [])
+    {
         if (empty($params['limit'])) {
             $params['limit'] = 250;
         }
 
-        $allResults = array();
+        if (empty($params['page'])) {
+            $params['page'] = 1;
+        }
+
+        $requestUrl = $request->getUri();
 
         do {
             $paramDelim = strstr($requestUrl, '?') ? '&' : '?';
@@ -164,12 +184,16 @@ abstract class AbstractEndpoint
             $root = $response->get($rootElement);
 
             if ($pageResults = empty($root) ? false : $root) {
-                $allResults = array_merge($allResults, $pageResults);
+                /**
+                 * On each chunk result set, we will pass them to the callback and then let the
+                 * developer take care of everything within the callback, which allows us to
+                 * keep the memory low for spinning through large result sets for working.
+                 */
+                $callback($pageResults);
             }
 
             $params['page']++;
         } while ($pageResults);
 
-        return $allResults;
     }
 }
