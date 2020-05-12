@@ -2,8 +2,9 @@
 namespace CodeCloud\Bundle\ShopifyBundle\Twig\Extension;
 
 use CodeCloud\Bundle\ShopifyBundle\Security\HmacSignature;
+use Twig\Extension\AbstractExtension;
 
-class ShopifyStore extends \Twig_Extension
+class ShopifyStore extends AbstractExtension
 {
     /**
      * @var HmacSignature
