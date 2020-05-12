@@ -162,8 +162,8 @@ class OAuthController
         $this->stores->authenticateStore($storeName, $accessToken, $nonce);
 
         if ($response = $this->dispatcher->dispatch(
-            PostAuthEvent::NAME,
-            new PostAuthEvent($storeName, $accessToken))->getResponse()
+            new PostAuthEvent($storeName, $accessToken),
+            PostAuthEvent::NAME)->getResponse()
         ) {
             return $response;
         }
