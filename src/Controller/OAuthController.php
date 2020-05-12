@@ -92,8 +92,8 @@ class OAuthController
         }
 
         if ($response = $this->dispatcher->dispatch(
-            PreAuthEvent::NAME,
-            new PreAuthEvent($storeName))->getResponse()
+            new PreAuthEvent($storeName),
+            PreAuthEvent::NAME)->getResponse()
         ) {
             return $response;
         }
