@@ -61,14 +61,14 @@ class WebhooksCommand extends Command
         if ($input->getOption('list')) {
             $output->writeln(print_r($this->webhookCreator->listWebhooks($store), true));
 
-            return;
+            return 0;
         }
 
         if ($input->getOption('delete')) {
             $this->webhookCreator->deleteAllWebhooks($store);
             $output->writeln('Webhooks deleted');
 
-            return;
+            return 0;
         }
 
         if (empty($this->topics)) {
