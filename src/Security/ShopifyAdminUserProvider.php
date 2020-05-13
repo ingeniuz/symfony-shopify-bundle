@@ -40,6 +40,6 @@ class ShopifyAdminUserProvider implements UserProviderInterface
 
     public function supportsClass($class)
     {
-        return $class instanceof ShopifyAdminUser;
+        return ShopifyAdminUser::class === $class;
     }
 }
