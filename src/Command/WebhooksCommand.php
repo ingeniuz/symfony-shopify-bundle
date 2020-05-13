@@ -78,5 +78,7 @@ class WebhooksCommand extends Command
         $this->webhookCreator->createWebhooks($store, $this->topics);
 
         $output->writeln('Webhooks created');
+        
+        return 0;
     }
 }
