@@ -74,7 +74,7 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
-        return $userProvider->loadUserByUsername($credentials['shop']);
+        return $userProvider->loadUserByUsername(($credentials && isset($credentials['shop']))? $credentials['shop']:null);
     }
 
     public function checkCredentials($credentials, UserInterface $user)
