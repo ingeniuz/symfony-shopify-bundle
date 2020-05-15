@@ -12,6 +12,7 @@ use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use CodeCloud\Bundle\ShopifyBundle\Security\HmacSignature;
 
 
 /**
@@ -25,11 +26,17 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
     private $urlGenerator;
 
     /**
+     * @var HmacSignature
+     */
+    private $hmacSignature;
+
+    /**
      * @param UrlGeneratorInterface $urlGenerator
      */
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(UrlGeneratorInterface $urlGenerator, HmacSignature $hmacSignature)
     {
         $this->urlGenerator = $urlGenerator;
+        $this->hmacSignature = $hmacSignature;
     }
 
     /**
@@ -47,7 +54,18 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
         }
 
         if (!$session->has(SessionAuthenticationListener::SESSION_PARAMETER)) {
-            return false;
+            // die ('NO HAS ' . print_r($request->getSession()->all(), 1));
+            $storeName = $request->get('shop');
+            $hmac      = $request->get('hmac');
+            if ($storeName && $hmac) {
+                if (!$this->hmacSignature->isValid($hmac, $request->query->all())) {
+                    throw new BadRequestHttpException('Invalid HMAC Signature');
+                    return false;
+                } else {
+                    $session->set(SessionAuthenticationListener::SESSION_PARAMETER, $storeName);
+                }
+            } else 
+                return false;
         }
 
         return [
