@@ -54,12 +54,11 @@ class SessionAuthenticator extends AbstractGuardAuthenticator
         }
 
         if (!$session->has(SessionAuthenticationListener::SESSION_PARAMETER)) {
-            // die ('NO HAS ' . print_r($request->getSession()->all(), 1));
+            
             $storeName = $request->get('shop');
             $hmac      = $request->get('hmac');
             if ($storeName && $hmac) {
                 if (!$this->hmacSignature->isValid($hmac, $request->query->all())) {
-                    throw new BadRequestHttpException('Invalid HMAC Signature');
                     return false;
                 } else {
                     $session->set(SessionAuthenticationListener::SESSION_PARAMETER, $storeName);
